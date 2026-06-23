@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouSpace - Interactive Creative Studio</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@200;300;400;600;850&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            space: ['Space Grotesk', 'sans-serif'],
+            outfit: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            cyberRed: {
+              DEFAULT: '#f43f5e',
+              glow: '#fda4af',
+              dark: '#9f1239'
+            },
+            cyberBlue: {
+              DEFAULT: '#06b6d4',
+              glow: '#67e8f9',
+              dark: '#155e75'
+            },
+            cyberDeep: '#0b0f19'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3b82f6;
+      border-radius: 99px;
+    }
+
+    body {
+      background-color: #020617;
+      overflow-x: hidden;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Glow overlays */
+    .radial-glow-red {
+      background: radial-gradient(circle, rgba(244,63,94,0.15) 0%, rgba(0,0,0,0) 70%);
+    }
+    .radial-glow-blue {
+      background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, rgba(0,0,0,0) 70%);
+    }
+
+    /* Floating Art Layout Keyframes */
+    @keyframes floatCenter {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(1deg); }
+    }
+    @keyframes floatTL {
+      0%, 100% { transform: translate(-8px, -8px) scale(0.98); }
+      50% { transform: translate(-15px, -18px) scale(1.02); }
+    }
+    @keyframes floatTR {
+      0%, 100% { transform: translate(8px, -12px) scale(1.02); }
+      50% { transform: translate(14px, -4px) scale(0.97); }
+    }
+    @keyframes floatBL {
+      0%, 100% { transform: translate(-12px, 8px) scale(0.97); }
+      50% { transform: translate(-4px, 16px) scale(1.01); }
+    }
+    @keyframes floatBR {
+      0%, 100% { transform: translate(10px, 12px) scale(1.01); }
+      50% { transform: translate(4px, 6px) scale(0.98); }
+    }
+
+    .art-float-center { animation: floatCenter 6s ease-in-out infinite; }
+    .art-float-tl { animation: floatTL 7s ease-in-out infinite; }
+    .art-float-tr { animation: floatTR 5.5s ease-in-out infinite; }
+    .art-float-bl { animation: floatBL 6.5s ease-in-out infinite; }
+    .art-float-br { animation: floatBR 8s ease-in-out infinite; }
+
+    /* Elastic / Jelly Navigation styling */
+    .jelly-nav {
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.35);
+    }
+    .jelly-nav:active {
+      transform: scaleY(0.85) scaleX(1.1);
+    }
+
+    .jelly-btn {
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.4, 1.4);
+    }
+    .jelly-btn:hover {
+      transform: translateY(-4px) scale(1.08);
+    }
+
+    /* Wooden frames styling */
+    .wooden-frame {
+      box-shadow: 
+        0 10px 25px -5px rgba(0,0,0,0.7),
+        0 8px 10px -6px rgba(0,0,0,0.7),
+        inset 0 2px 4px rgba(255,255,255,0.1);
+      border: 14px solid #3c2317; /* Dark elegant mahogany wood tone */
+      outline: 2px solid #5c3a21;
+    }
+
+    /* Glassmorphic blur */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Black Hole Center-to-Edges Vignette Overlay */
+    .blackhole-vignette {
+      background: radial-gradient(circle at center, rgba(0,0,0,0) 15%, rgba(2,6,23,0.75) 65%, rgba(2,6,23,1) 100%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen relative flex flex-col justify-between text-base sm:text-lg">
+
+  <!-- Ambient background glow particles -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute top-1/4 left-1/4 w-[45rem] h-[45rem] rounded-full radial-glow-blue opacity-75"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[45rem] h-[45rem] rounded-full radial-glow-red opacity-75"></div>
+  </div>
+
+  <!-- ================= LANDING GATEKEEPER SCREEN ================= -->
+  <section id="landing-page" class="fixed inset-0 z-50 bg-slate-950 flex flex-col justify-between items-center py-10 md:py-16 overflow-hidden transition-all duration-1000">
+    <!-- Starfield/Grid Background -->
+    <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#3b82f6 1px, transparent 1px); background-size: 24px 24px;"></div>
+    
+    <!-- Gravitational Singular Canvas covering full window background behind vignette -->
+    <canvas id="blackhole-canvas" class="absolute inset-0 w-full h-full cursor-crosshair z-0"></canvas>
+    
+    <!-- Symmetrical Vignette Overlay representing shadows deeper at corner margins -->
+    <div class="absolute inset-0 blackhole-vignette z-10"></div>
+    
+    <!-- Central Spherical Event Horizon Singularity (Clean Black Sphere with intense spatial gradient glow) -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-black shadow-[0_0_50px_rgba(244,63,94,0.9),0_0_100px_rgba(6,182,212,0.7)] border-2 border-slate-900 pointer-events-none z-20 transition-all duration-500"></div>
+
+    <!-- UPPER LANDING AREA: Brand Identity positioned sufficiently above the black hole -->
+    <div class="text-center px-6 z-30 relative pointer-events-auto w-full">
+      <h1 class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[0.2em] font-space text-transparent bg-clip-text bg-gradient-to-r from-cyberBlue via-purple-400 to-cyberRed mb-1.5 animate-pulse">
+        YOUSPACE
+      </h1>
+      <p class="text-[10px] sm:text-xs uppercase tracking-[0.45em] text-slate-400 font-mono">CREATIVE SYSTEMS PORTAL</p>
+    </div>
+
+    <!-- CENTRAL SPACER: Preserves central region for the absolute Event Horizon sphere -->
+    <div class="h-32 sm:h-36 my-auto pointer-events-none z-0"></div>
+
+    <!-- LOWER LANDING AREA: Interactive controls & description card positioned sufficiently below the black hole -->
+    <div class="text-center px-6 max-w-2xl z-30 relative pointer-events-auto w-full">
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4 tracking-tight font-space leading-tight">
+        Enter the <span class="text-cyberBlue">Creative</span> Playground
+      </h2>
+
+      <!-- Explore Trigger with Sound Initialization -->
+      <button onclick="enterPortfolio()" class="relative group inline-flex items-center justify-center px-12 py-5 font-bold text-lg sm:text-xl rounded-full overflow-hidden transition-all duration-300 transform active:scale-95 bg-slate-900 border-2 border-cyberBlue/40 hover:border-cyberRed text-white shadow-lg hover:shadow-cyan-500/25">
+        <!-- Button glowing background -->
+        <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-cyberBlue to-cyberRed opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></span>
+        <span class="relative flex items-center gap-3 group-hover:text-black transition-colors duration-300">
+          EXPLORE SPACE <i data-lucide="compass" class="w-6 h-6 animate-spin-slow"></i>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ================= MAIN APP WRAPPER ================= -->
+  <main id="main-app" class="hidden opacity-0 transition-opacity duration-1000 z-10 flex-grow flex flex-col justify-between w-full relative">
+    
+    <!-- Top Header Area (Visible on Desktop always) -->
+    <header class="w-full max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-6 z-20">
+      <div class="flex items-center gap-4 cursor-pointer" onclick="switchTab('home')">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyberRed to-cyberBlue p-[1px]">
+          <div class="w-full h-full bg-slate-950 rounded-xl flex items-center justify-center">
+            <span class="font-black text-transparent bg-clip-text bg-gradient-to-r from-cyberRed to-cyberBlue text-2xl font-space">Y</span>
+          </div>
+        </div>
+        <div>
+          <span class="text-2xl font-black font-space tracking-wider">YouSpace</span>
+          <span class="text-xs block text-slate-500 tracking-widest uppercase mt-0.5">Creative System v2.6</span>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation Panel -->
+      <nav id="desktop-nav" class="hidden md:flex items-center gap-2 bg-slate-900/80 border border-slate-800 backdrop-blur-md p-2 rounded-full shadow-xl jelly-nav">
+        <button onclick="switchTab('home')" class="nav-tab-btn flex items-center gap-3 px-6 py-3 rounded-full text-base font-semibold transition-all jelly-btn bg-slate-850 text-cyberBlue border border-cyberBlue/20" data-tab="home">
+          <i data-lucide="home" class="w-5 h-5"></i> Home
+        </button>
+        <button onclick="switchTab('paintings')" class="nav-tab-btn flex items-center gap-3 px-6 py-3 rounded-full text-base font-semibold text-slate-400 transition-all jelly-btn hover:text-white" data-tab="paintings">
+          <i data-lucide="brush" class="w-5 h-5"></i> Paintings
+        </button>
+        <button onclick="switchTab('music')" class="nav-tab-btn flex items-center gap-3 px-6 py-3 rounded-full text-base font-semibold text-slate-400 transition-all jelly-btn hover:text-white" data-tab="music">
+          <i data-lucide="music" class="w-5 h-5"></i> Music
+        </button>
+        <button onclick="switchTab('coding')" class="nav-tab-btn flex items-center gap-3 px-6 py-3 rounded-full text-base font-semibold text-slate-400 transition-all jelly-btn hover:text-white" data-tab="coding">
+          <i data-lucide="code-2" class="w-5 h-5"></i> Coding
+        </button>
+      </nav>
+
+      <div class="hidden md:flex items-center gap-2.5">
+        <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-sm text-slate-400 font-mono">Synthesizer Connected</span>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Content Region: Bottom padding is optimized dynamically on mobile to prevent player overlays -->
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-32 sm:pb-36 md:pb-8 flex-grow flex flex-col justify-center">
+
+      <!-- 1. HOME TAB VIEW -->
+      <section id="tab-home" class="tab-content block space-y-8 animate-fade-in">
+        
+        <!-- Interactive Hero Container -->
+        <div id="home-interactive-container" class="relative overflow-hidden rounded-3xl border border-slate-850/80 p-8 sm:p-10 lg:p-14 min-h-[600px] flex flex-col justify-between group bg-slate-950/40 backdrop-blur-sm cursor-crosshair">
+          
+          <!-- Interactive Quantum Nodes Canvas -->
+          <canvas id="interaction-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+          
+          <div class="relative z-10 w-full max-w-5xl mx-auto space-y-10 pointer-events-auto">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-6 gap-4">
+              <div>
+                <span class="text-xs sm:text-sm font-mono text-cyberBlue uppercase tracking-wider font-semibold">INTERACTIVE SPACE</span>
+                <h2 class="text-3xl sm:text-4xl font-black font-space text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">Quantum Node Playground</h2>
+              </div>
+              <div class="flex gap-3 self-start sm:self-center">
+                <button onclick="resetLabCanvas()" class="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/50 hover:border-cyberBlue rounded-xl text-slate-400 hover:text-white transition-all" title="Reset Simulation">
+                  <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                </button>
+                <span class="px-3.5 py-1.5 rounded-lg bg-cyberBlue/10 text-cyberBlue font-mono text-xs flex items-center gap-2 border border-cyberBlue/20">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Active Background
+                </span>
+              </div>
+            </div>
+
+            <!-- Side-By-Side Transparent Cards Overlay -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+              
+              <!-- Left Card: Introduction -->
+              <div class="glass-panel rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden group hover:border-cyberBlue/40 transition-all duration-300 bg-slate-950/65 border border-white/5 shadow-2xl flex flex-col justify-between">
+                <div class="absolute top-0 right-0 w-32 h-32 radial-glow-blue opacity-50"></div>
+                <div>
+                  <div class="flex items-center gap-4 mb-6">
+                    <div class="p-4 bg-cyberBlue/10 text-cyberBlue rounded-xl border border-cyberBlue/20">
+                      <i data-lucide="user-pin" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                      <span class="text-xs sm:text-sm font-mono text-cyberBlue uppercase tracking-wider font-semibold">CREATOR BIO</span>
+                      <h3 class="text-2xl font-black font-space">Introduction</h3>
+                    </div>
+                  </div>
+                  <p class="text-slate-200 leading-relaxed text-base sm:text-lg">
+                    Hey! I'm a developer, computational artist, and synthesis enthusiast. This custom space serves as my visual and sonic archive. My curiosity resides at the intersection of organic artwork design, software scripting, and Web Synthesizers.
+                  </p>
+                </div>
+                <div class="mt-10 pt-4 border-t border-slate-900/80 flex justify-between text-xs sm:text-sm text-slate-450 font-mono">
+                  <span>Focus: Interactive Web Mechanics</span>
+                  <span>Est. 2026</span>
+                </div>
+              </div>
+
+              <!-- Right Card: Navigation Guide -->
+              <div class="glass-panel rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden group hover:border-cyberRed/40 transition-all duration-300 bg-slate-950/65 border border-white/5 shadow-2xl flex flex-col justify-between">
+                <div class="absolute top-0 right-0 w-32 h-32 radial-glow-red opacity-50"></div>
+                <div>
+                  <div class="flex items-center gap-4 mb-6">
+                    <div class="p-4 bg-cyberRed/10 text-cyberRed rounded-xl border border-cyberRed/20">
+                      <i data-lucide="compass" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                      <span class="text-xs sm:text-sm font-mono text-cyberRed uppercase tracking-wider font-semibold">NAVIGATION GUIDE</span>
+                      <h3 class="text-2xl font-black font-space">What to See</h3>
+                    </div>
+                  </div>
+                  <ul class="space-y-4 text-slate-200 text-base sm:text-lg">
+                    <li class="flex items-start gap-3">
+                      <span class="text-cyberBlue mt-1 text-xl">✦</span>
+                      <span>Explore <strong>Paintings</strong> to experience my generative abstract frame wall art.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                      <span class="text-cyberRed mt-1 text-xl">✦</span>
+                      <span>Launch <strong>Music</strong> to activate a real Web Synth Spotify-style player with real-time waveform generations.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                      <span class="text-purple-400 mt-1 text-xl">✦</span>
+                      <span>Launch <strong>Coding</strong> to view high-tech terminal outputs and video simulators of creative software projects.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Interactive Guide Tag -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-between items-center bg-slate-900/85 backdrop-blur border border-slate-800/80 px-6 py-3.5 rounded-xl text-xs sm:text-sm text-slate-400">
+              <span><i data-lucide="mouse-pointer" class="inline w-4 h-4 mr-1.5 text-cyberBlue"></i> Move your cursor across the screen to attract nodes</span>
+              <span class="font-mono text-slate-300">Click anywhere to trigger a starburst explosion</span>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2. PAINTINGS TAB VIEW -->
+      <section id="tab-paintings" class="tab-content hidden space-y-6 animate-fade-in">
+        
+        <div id="art-intro-container" class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div class="lg:col-span-5 space-y-6">
+            <div class="glass-panel rounded-2xl p-8 relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-32 h-32 radial-glow-blue opacity-50"></div>
+              <span class="text-xs sm:text-sm font-mono text-cyberBlue uppercase tracking-wider">CREATIVE MEDIUM</span>
+              <h3 class="text-3xl sm:text-4xl font-black font-space mt-1 mb-4">About My Artwork</h3>
+              <p class="text-slate-200 leading-relaxed text-base sm:text-lg">
+                I express creative concepts through digital oil textures, modern color gradients, and algorithmic geometries. Each painting is an exploration of human mood expressed within structural parameters.
+              </p>
+              <div class="mt-6 p-4 bg-cyberBlue/10 border border-cyberBlue/20 rounded-xl text-sm text-cyberBlue flex items-center gap-3">
+                <i data-lucide="info" class="w-5 h-5 flex-shrink-0"></i>
+                <span>Click the overlapping art structure adjacent to launch the immersive art gallery space wall.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Specific Floating Overlapping Arrangement -->
+          <div class="lg:col-span-7 flex flex-col items-center justify-center py-8">
+            <span class="text-sm font-mono text-slate-500 uppercase tracking-widest mb-6 block">MY ARTS (CLICK EMBLEM TO ENTER GALLERY)</span>
+            
+            <div onclick="enterArtGallery()" class="relative w-80 h-80 sm:w-96 sm:h-96 cursor-pointer group active:scale-95 transition-transform duration-300">
+              
+              <!-- Background Glow -->
+              <div class="absolute inset-0 bg-cyberBlue/20 rounded-full blur-3xl group-hover:bg-cyberRed/20 transition-all duration-700"></div>
+
+              <!-- Overlapping Floating Art Elements -->
+              <div class="art-float-tl absolute top-2 left-2 w-36 h-36 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-tr from-rose-500 to-indigo-600 p-[1.5px] shadow-2xl transition-all duration-500 group-hover:scale-105">
+                <div class="w-full h-full bg-slate-900 rounded-[15px] overflow-hidden flex items-center justify-center p-2">
+                  <div class="w-full h-full rounded-lg bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-200 via-red-500 to-purple-900 animate-pulse"></div>
+                </div>
+              </div>
+
+              <div class="art-float-tr absolute top-4 right-2 w-32 h-32 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 p-[1.5px] shadow-2xl transition-all duration-500 group-hover:scale-105">
+                <div class="w-full h-full bg-slate-900 rounded-[15px] overflow-hidden flex items-center justify-center p-2">
+                  <div class="w-full h-full rounded-lg bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-teal-200 via-cyan-600 to-slate-950"></div>
+                </div>
+              </div>
+
+              <div class="art-float-bl absolute bottom-2 left-6 w-32 h-32 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-bl from-purple-500 to-emerald-500 p-[1.5px] shadow-2xl transition-all duration-500 group-hover:scale-105">
+                <div class="w-full h-full bg-slate-900 rounded-[15px] overflow-hidden flex items-center justify-center p-2">
+                  <div class="w-full h-full rounded-lg bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-amber-500 via-emerald-600 to-slate-950"></div>
+                </div>
+              </div>
+
+              <div class="art-float-br absolute bottom-4 right-4 w-36 h-36 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-tr from-yellow-400 to-pink-600 p-[1.5px] shadow-2xl transition-all duration-500 group-hover:scale-105">
+                <div class="w-full h-full bg-slate-900 rounded-[15px] overflow-hidden flex items-center justify-center p-2">
+                  <div class="w-full h-full rounded-lg bg-[radial-gradient(ellipse_at_right,_var(--tw-gradient-stops))] from-yellow-300 via-pink-500 to-purple-850"></div>
+                </div>
+              </div>
+
+              <!-- MAIN Overlapping Center Card (acts as portal trigger) -->
+              <div class="art-float-center absolute inset-14 sm:inset-16 rounded-2xl bg-gradient-to-r from-cyberBlue via-purple-500 to-cyberRed p-[2px] shadow-2xl transition-all duration-500 group-hover:shadow-cyan-500/50 flex flex-col justify-center items-center text-center">
+                <div class="w-full h-full bg-slate-950 rounded-[14px] flex flex-col items-center justify-center p-3 border border-white/5">
+                  <i data-lucide="eye" class="w-10 h-10 text-cyberBlue mb-2 group-hover:text-cyberRed transition-colors duration-300 group-hover:scale-110"></i>
+                  <span class="text-sm font-black tracking-widest font-space text-white uppercase">VIEW</span>
+                  <span class="text-xs text-slate-400 uppercase tracking-widest mt-1">GALLERY</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- The Immersive Art Gallery Wall -->
+        <div id="art-gallery-container" class="hidden space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <span class="text-xs sm:text-sm font-mono text-cyberBlue uppercase tracking-wider">IMMERSIVE WALL SPACE</span>
+              <h3 class="text-3xl sm:text-4xl font-black font-space">The Obsidian Art Wall</h3>
+            </div>
+            <button onclick="exitArtGallery()" class="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-cyberRed text-base rounded-lg text-slate-300 transition-all duration-300">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i> Back to Main
+            </button>
+          </div>
+
+          <!-- Dynamic Gallery Wall Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
+            <!-- Dynamically populated in JavaScript -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 3. MUSIC TAB VIEW -->
+      <section id="tab-music" class="tab-content hidden space-y-8 animate-fade-in">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          
+          <!-- Spotify Intro Sidebar - POSITIONED ON THE LEFT -->
+          <div class="lg:col-span-5 space-y-6">
+            <div class="glass-panel rounded-2xl p-8 relative overflow-hidden h-full flex flex-col justify-between">
+              <div>
+                <div class="absolute top-0 right-0 w-32 h-32 radial-glow-red opacity-50"></div>
+                <span class="text-xs sm:text-sm font-mono text-cyberRed uppercase tracking-wider">AUDIO SYNTHESIS</span>
+                <h3 class="text-3xl sm:text-4xl font-black font-space mt-1 mb-4">About My Music</h3>
+                <p class="text-slate-200 leading-relaxed text-base sm:text-lg">
+                  I compose modular synthesizer loops, ambient space soundtracks, and retro lo-fi arpeggios. 
+                </p>
+                <div class="mt-6 p-5 rounded-xl bg-slate-950/80 border border-slate-800 text-sm text-slate-400 space-y-3">
+                  <div class="flex items-center gap-2 text-cyberRed font-semibold text-base">
+                    <i data-lucide="info" class="w-5 h-5"></i>
+                    <span>Real-time Audio Engine</span>
+                  </div>
+                  <p class="leading-relaxed">Click any song. The page utilizes the browser's native <strong>Web Audio API</strong> to synthesize futuristic sounds on-the-fly, or stream direct embedded links!</p>
+                </div>
+              </div>
+
+              <!-- Animated Equalizer simulation -->
+              <div class="pt-8">
+                <div class="flex items-end gap-1.5 h-16 w-full justify-center opacity-70">
+                  <div class="w-3.5 bg-cyberBlue rounded-t bar-eq" style="height: 40%; animation: pulseEq 1.1s infinite alternate"></div>
+                  <div class="w-3.5 bg-purple-500 rounded-t bar-eq" style="height: 80%; animation: pulseEq 0.7s infinite alternate"></div>
+                  <div class="w-3.5 bg-cyberRed rounded-t bar-eq" style="height: 50%; animation: pulseEq 0.9s infinite alternate"></div>
+                  <div class="w-3.5 bg-yellow-500 rounded-t bar-eq" style="height: 90%; animation: pulseEq 0.6s infinite alternate"></div>
+                  <div class="w-3.5 bg-cyberBlue rounded-t bar-eq" style="height: 30%; animation: pulseEq 1.2s infinite alternate"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spotify Style Playlist Track Selection - POSITIONED ON THE RIGHT -->
+          <div class="lg:col-span-7">
+            <div class="glass-panel rounded-2xl p-8 relative overflow-hidden">
+              <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
+                <h4 class="text-xl sm:text-2xl font-black font-space tracking-wide">My Tracks (Spotify-Style UI)</h4>
+                <span class="text-xs sm:text-sm font-mono text-slate-400 uppercase">Interactive Synthesizer Playlist</span>
+              </div>
+
+              <!-- Music playlists dynamically constructed -->
+              <div id="music-playlist-container" class="space-y-3 max-h-[450px] overflow-y-auto pr-2">
+                <!-- Dynamically populated in JavaScript using correct unique ID selector -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 4. CODING TAB VIEW -->
+      <section id="tab-coding" class="tab-content hidden space-y-6 animate-fade-in">
+        
+        <div id="coding-main-container" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          <!-- Introduction Card Left -->
+          <div class="lg:col-span-4">
+            <div class="glass-panel rounded-2xl p-8 h-full flex flex-col justify-between relative overflow-hidden">
+              <div>
+                <div class="absolute top-0 right-0 w-32 h-32 radial-glow-blue opacity-50"></div>
+                <span class="text-xs sm:text-sm font-mono text-cyberBlue uppercase tracking-wider">SOFTWARE ENGINEERING</span>
+                <h3 class="text-3xl sm:text-4xl font-black font-space mt-1 mb-4">About My Coding</h3>
+                <p class="text-slate-200 leading-relaxed text-base sm:text-lg">
+                  Programming is how I manifest logic into dynamic structures. I build web micro-systems, simulation render engines, and structural visual interactive code environments.
+                </p>
+              </div>
+
+              <div class="pt-8 border-t border-slate-800/80">
+                <span class="text-xs block font-mono text-slate-555 uppercase tracking-widest mb-3">CORE UTILITIES USED</span>
+                <div class="flex flex-wrap gap-2.5">
+                  <span class="px-3 py-1.5 rounded-md bg-slate-950 border border-slate-800 text-xs sm:text-sm font-mono text-cyan-400">TypeScript</span>
+                  <span class="px-3 py-1.5 rounded-md bg-slate-950 border border-slate-800 text-xs sm:text-sm font-mono text-rose-400">Web Audio GL</span>
+                  <span class="px-3 py-1.5 rounded-md bg-slate-950 border border-slate-800 text-xs sm:text-sm font-mono text-purple-400">NodeJS</span>
+                  <span class="px-3 py-1.5 rounded-md bg-slate-950 border border-slate-800 text-xs sm:text-sm font-mono text-amber-400">Tailwind</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Projects -->
+          <div class="lg:col-span-8 flex flex-col justify-between">
+            <div class="glass-panel rounded-2xl p-8 h-full">
+              <h4 class="text-xl sm:text-2xl font-black font-space tracking-wide mb-6">My Projects (Click for full view page)</h4>
+              
+              <div class="space-y-4">
+                
+                <!-- Project 1 Preview -->
+                <div onclick="openProject(1)" class="p-5 rounded-xl bg-slate-950/40 hover:bg-slate-900 border border-slate-800/80 hover:border-cyberBlue/40 cursor-pointer group transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div class="space-y-2">
+                    <div class="flex items-center gap-2.5">
+                      <span class="px-2.5 py-1 rounded bg-cyberBlue/10 text-cyberBlue text-[10px] sm:text-xs font-mono font-semibold">PROJECT 01</span>
+                      <h4 class="font-bold text-slate-100 group-hover:text-cyberBlue transition-colors font-space text-lg sm:text-xl">Void Gravity Core</h4>
+                    </div>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">An active cosmic system simulation using HTML Canvas rendering 500 orbital nodes responding dynamically to drag-gravity.</p>
+                  </div>
+                  <div class="flex items-center gap-3 flex-shrink-0 self-end sm:self-center">
+                    <span class="text-xs sm:text-sm text-slate-550 font-mono">JS Simulation</span>
+                    <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 group-hover:text-cyberBlue group-hover:border-cyberBlue transition-all">
+                      <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Project 2 Preview -->
+                <div onclick="openProject(2)" class="p-5 rounded-xl bg-slate-950/40 hover:bg-slate-900 border border-slate-800/80 hover:border-cyberRed/40 cursor-pointer group transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div class="space-y-2">
+                    <div class="flex items-center gap-2.5">
+                      <span class="px-2.5 py-1 rounded bg-cyberRed/10 text-cyberRed text-[10px] sm:text-xs font-mono font-semibold">PROJECT 02</span>
+                      <h4 class="font-bold text-slate-100 group-hover:text-cyberRed transition-colors font-space text-lg sm:text-xl">Cyber Audio Synths</h4>
+                    </div>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Web Audio API synth engine that synthesizes ambient retro cyber soundwaves with responsive oscillator visuals.</p>
+                  </div>
+                  <div class="flex items-center gap-3 flex-shrink-0 self-end sm:self-center">
+                    <span class="text-xs sm:text-sm text-slate-555 font-mono">WebAudio Synthesis</span>
+                    <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 group-hover:text-cyberRed group-hover:border-cyberRed transition-all">
+                      <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Project 3 Preview -->
+                <div onclick="openProject(3)" class="p-5 rounded-xl bg-slate-950/40 hover:bg-slate-900 border border-slate-800/80 hover:border-purple-400/40 cursor-pointer group transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div class="space-y-2">
+                    <div class="flex items-center gap-2.5">
+                      <span class="px-2.5 py-1 rounded bg-purple-400/10 text-purple-400 text-[10px] sm:text-xs font-mono font-semibold">PROJECT 03</span>
+                      <h4 class="font-bold text-slate-100 group-hover:text-purple-400 transition-colors font-space text-lg sm:text-xl">Quantum Resonance Matrix</h4>
+                    </div>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">An algorithm parsing multi-layered complex sound coordinates and rendering relative vector trajectories.</p>
+                  </div>
+                  <div class="flex items-center gap-3 flex-shrink-0 self-end sm:self-center">
+                    <span class="text-xs sm:text-sm text-slate-555 font-mono">Spectrum Logic</span>
+                    <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 group-hover:text-purple-400 group-hover:border-purple-400 transition-all">
+                      <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- The Immersive Dedicated Project Screen -->
+        <div id="project-detail-container" class="hidden space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div class="flex items-center gap-3">
+              <span id="project-badge" class="px-3 py-1 rounded bg-cyberBlue/10 text-cyberBlue text-sm font-mono font-semibold">PROJECT DATA</span>
+              <h3 id="project-title" class="text-3xl sm:text-4xl font-black font-space">Project Core</h3>
+            </div>
+            <button onclick="closeProject()" class="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-cyberRed text-base rounded-lg text-slate-300 transition-all duration-300">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i> Back to Coding
+            </button>
+          </div>
+
+          <!-- Project View Contents -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-4">
+            
+            <!-- Left Panel: Video demonstration -->
+            <div class="lg:col-span-7 space-y-4">
+              <span class="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-widest block flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span> Project Video Demonstration
+              </span>
+              
+              <div class="relative bg-slate-950 rounded-2xl border border-slate-850 overflow-hidden shadow-2xl shadow-cyberBlue/10 w-full" style="aspect-ratio: 16/9;">
+                <iframe id="project-video-iframe" class="absolute inset-0 w-full h-full border-0" src="" title="Project Demonstration Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <!-- Right Panel: Description, Software, and details -->
+            <div class="lg:col-span-5 space-y-6">
+              
+              <!-- Project description -->
+              <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-4">
+                <h4 class="text-xl font-black font-space border-b border-slate-800/80 pb-3">Description & Logs</h4>
+                <p id="project-desc-text" class="text-slate-200 text-base leading-relaxed">
+                  Project overview data logs go here.
+                </p>
+              </div>
+
+              <!-- Software Used section -->
+              <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-4">
+                <h4 class="text-xl font-black font-space border-b border-slate-800/80 pb-3">Software Used</h4>
+                <div id="project-software-list" class="flex flex-wrap gap-3">
+                  <!-- Badges inserted dynamically -->
+                </div>
+              </div>
+
+              <!-- Interactive Controls or Core specs -->
+              <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-4">
+                <h4 class="text-xl font-black font-space border-b border-slate-800/80 pb-3">Technical Core Analysis</h4>
+                <div class="grid grid-cols-2 gap-4 text-xs sm:text-sm font-mono">
+                  <div class="bg-slate-950/60 p-4 rounded-lg border border-slate-800">
+                    <span class="block text-slate-500">COGNITIVE LOAD</span>
+                    <span class="text-base font-bold text-slate-300 mt-1 block">Low Latency</span>
+                  </div>
+                  <div class="bg-slate-950/60 p-4 rounded-lg border border-slate-800">
+                    <span class="block text-slate-500">REFRESH FREQ</span>
+                    <span class="text-base font-bold text-slate-300 mt-1 block">~16.7 ms</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Persistent Spotify Style Music Player (Positioned directly above the mobile bottom nav panel) -->
+    <div id="bottom-music-bar" class="fixed bottom-[68px] md:bottom-0 inset-x-0 bg-slate-950/95 border-t border-slate-800 p-4 sm:p-5 transform translate-y-full transition-transform duration-500 z-40 backdrop-blur-lg shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
+      <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
+        
+        <!-- Album, song details -->
+        <div class="flex items-center gap-4 w-full md:w-auto">
+          <div class="w-14 h-14 rounded-lg bg-gradient-to-tr from-cyan-400 to-cyberRed flex items-center justify-center flex-shrink-0 animate-spin-slow">
+            <i data-lucide="music" class="w-6 h-6 text-white"></i>
+          </div>
+          <div>
+            <h5 id="now-playing-title" class="text-base sm:text-lg font-bold font-space text-slate-100">Now Playing</h5>
+            <p id="now-playing-desc" class="text-xs sm:text-sm text-slate-400">Select a song to synthesize.</p>
+          </div>
+        </div>
+
+        <!-- Center Controls: Play, Pause, seekbar -->
+        <div class="flex flex-col items-center gap-3 w-full md:w-1/2 lg:w-1/3">
+          <div class="flex items-center gap-6">
+            <button onclick="prevTrack()" class="text-slate-400 hover:text-white transition-colors" title="Previous Track">
+              <i data-lucide="skip-back" class="w-6 h-6"></i>
+            </button>
+            <button onclick="togglePlayback()" id="global-play-btn" class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all" title="Play / Pause">
+              <i data-lucide="pause" class="w-6 h-6 fill-black translate-x-[0.5px]"></i>
+            </button>
+            <button onclick="nextTrack()" class="text-slate-400 hover:text-white transition-colors" title="Next Track">
+              <i data-lucide="skip-forward" class="w-6 h-6"></i>
+            </button>
+          </div>
+          <!-- Seek slider tracker -->
+          <div class="flex items-center gap-3 w-full text-xs sm:text-sm text-slate-400 font-mono">
+            <span id="player-time-elapsed">0:00</span>
+            <div onclick="seekMusic(event)" id="music-timeline" class="h-2 bg-slate-800 rounded-full flex-grow cursor-pointer relative overflow-hidden">
+              <div id="music-progress" class="h-full bg-cyberBlue w-0 rounded-full transition-all duration-100"></div>
+            </div>
+            <span id="player-time-duration">0:00</span>
+          </div>
+        </div>
+
+        <!-- Volume, close, sound indicator -->
+        <div class="hidden md:flex items-center gap-4 text-slate-400">
+          <button onclick="toggleMute()" id="mute-btn-icon" class="hover:text-white transition-colors">
+            <i data-lucide="volume-2" class="w-6 h-6"></i>
+          </button>
+          <input oninput="adjustVolume(this.value)" type="range" min="0" max="1" step="0.05" value="0.7" class="w-24 accent-cyberBlue cursor-pointer bg-slate-850 h-1.5 rounded-lg">
+          <button onclick="closeBottomMusicBar()" class="p-1.5 hover:bg-slate-900 border border-slate-850 hover:text-rose-400 rounded-lg transition-colors" title="Minimize player">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Active Fullscreen Lightbox Overlay -->
+    <div id="artwork-lightbox" class="fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-4 transition-all duration-500 hidden opacity-0 scale-95 pointer-events-none">
+      <button onclick="zoomArtworkClose()" class="absolute top-6 right-6 p-2 bg-slate-900/80 border border-slate-800 hover:border-cyberRed text-slate-300 rounded-full hover:text-white transition-all">
+        <i data-lucide="x" class="w-7 h-7"></i>
+      </button>
+      
+      <!-- Big physical framed preview -->
+      <div class="wooden-frame p-4 bg-slate-950 max-w-xl sm:max-w-2xl w-full rounded">
+        <div class="aspect-video w-full rounded relative flex items-center justify-center overflow-hidden" id="lightbox-art-fill">
+          <!-- Dynamic high resolution preview inside -->
+        </div>
+        <div class="text-center mt-4 pt-3 border-t border-slate-900 bg-amber-50/5 rounded p-2.5 font-serif text-[#ebd3b2]">
+          <p class="text-2xl font-bold italic" id="lightbox-title">Artwork Name</p>
+          <p class="text-sm uppercase tracking-widest font-mono opacity-60 mt-1" id="lightbox-spec">Description Specifications</p>
+        </div>
+      </div>
+      
+      <!-- Ambient details -->
+      <p class="text-slate-400 text-sm mt-4 text-center max-w-lg leading-relaxed font-mono">
+        This computational abstract canvas utilizes layered spatial gradients dynamically calculated by mathematical parameters.
+      </p>
+    </div>
+
+    <!-- Footer Space -->
+    <footer class="w-full max-w-6xl mx-auto px-6 py-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-500 mt-8 mb-16 md:mb-0">
+      <span>Designed with cyber red & blue gradients &copy; 2026. All rights of art reserved.</span>
+      <div class="flex items-center gap-4">
+        <a href="#" class="hover:text-cyberBlue transition-colors">Security Policy</a>
+        <span>&bull;</span>
+        <a href="#" class="hover:text-cyberRed transition-colors">Dimensional Nodes</a>
+      </div>
+    </footer>
+
+    <!-- Mobile Navigation Panel (Docked flat and clean to the extreme bottom of viewport on smaller devices) -->
+    <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 w-full z-50 flex items-center justify-around bg-slate-950/95 border-t border-slate-900/80 py-3 px-6 shadow-[0_-8px_30px_rgba(0,0,0,0.7)] backdrop-blur-lg jelly-nav">
+      <button onclick="switchTab('home')" class="mobile-tab-btn p-3 rounded-full text-cyberBlue transition-all bg-slate-900 border border-cyberBlue/20" data-tab="home" title="Home">
+        <i data-lucide="home" class="w-6 h-6"></i>
+      </button>
+      <button onclick="switchTab('paintings')" class="mobile-tab-btn p-3 rounded-full text-slate-400 hover:text-white transition-all" data-tab="paintings" title="Paintings">
+        <i data-lucide="brush" class="w-6 h-6"></i>
+      </button>
+      <button onclick="switchTab('music')" class="mobile-tab-btn p-3 rounded-full text-slate-400 hover:text-white transition-all" data-tab="music" title="Music">
+        <i data-lucide="music" class="w-6 h-6"></i>
+      </button>
+      <button onclick="switchTab('coding')" class="mobile-tab-btn p-3 rounded-full text-slate-400 hover:text-white transition-all" data-tab="coding" title="Coding">
+        <i data-lucide="code-2" class="w-6 h-6"></i>
+      </button>
+    </nav>
+
+  </main>
+
+  <!-- ================= CLIENT JAVASCRIPT ================= -->
+  <script>
+    // System Global States
+    let activeTab = 'home';
+    let userHasExplored = false;
+
+    // Initialization trigger
+    window.onload = function() {
+      renderGallery();
+      renderMusicPlaylist();
+      initBlackholeEngine(); // Initiates black hole landing background engine
+    };
+
+    // ================= BLACK HOLE GRAVITY CANVAS (LANDING) =================
+    let bhCanvas, bhCtx;
+    let bhAnimationFrameId = null;
+    let bhMouse = { x: null, y: null };
+    let bhAccretionParticles = [];
+
+    function initBlackholeEngine() {
+      bhCanvas = document.getElementById('blackhole-canvas');
+      if (!bhCanvas) return;
+      bhCtx = bhCanvas.getContext('2d');
+      const container = document.getElementById('landing-page');
+
+      // Adjust sizes to cover complete window
+      resizeBhCanvas();
+      window.addEventListener('resize', resizeBhCanvas);
+
+      // Event tracking inside the full landing page viewport container
+      container.addEventListener('mousemove', (e) => {
+        const rect = bhCanvas.getBoundingClientRect();
+        bhMouse.x = e.clientX - rect.left;
+        bhMouse.y = e.clientY - rect.top;
+      });
+
+      container.addEventListener('mouseleave', () => {
+        bhMouse.x = null;
+        bhMouse.y = null;
+      });
+
+      // Populate accretion disk orbital elements (Keplerian orbits around center singularity)
+      bhAccretionParticles = [];
+      const particleCount = 130;
+      for (let i = 0; i < particleCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        // Keplerian boundary limits (outside singularity event horizon, tight center area)
+        const radius = Math.random() * 115 + 75;
+        bhAccretionParticles.push({
+          angle: angle,
+          radius: radius,
+          speed: (Math.random() * 0.02 + 0.015) * (100 / radius), // Orbital speed scales inversely with orbital radius
+          size: Math.random() * 2.0 + 0.5,
+          color: Math.random() > 0.4 ? '#f43f5e' : (Math.random() > 0.5 ? '#fda4af' : '#06b6d4')
+        });
+      }
+
+      animateBlackhole();
+    }
+
+    function resizeBhCanvas() {
+      if (!bhCanvas) return;
+      bhCanvas.width = window.innerWidth;
+      bhCanvas.height = window.innerHeight;
+    }
+
+    function drawGravityVector(ctx, x, y, angle, length, color, intensity, revealFactor) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = intensity * 1.5;
+      
+      // Dynamic alpha reveal: vectors are highlighted closer to center (revealed), darker near corners (edges)
+      ctx.globalAlpha = Math.min(1.0, (0.25 + intensity * 0.5) * revealFactor);
+
+      // Line representing direction
+      ctx.beginPath();
+      ctx.moveTo(-length / 2, 0);
+      ctx.lineTo(length / 2, 0);
+      ctx.stroke();
+
+      // Arrowhead showing gravitational force path
+      ctx.beginPath();
+      ctx.moveTo(length / 2, 0);
+      ctx.lineTo(length / 2 - 4, -3);
+      ctx.lineTo(length / 2 - 4, 3);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+      ctx.globalAlpha = 1.0;
+    }
+
+    function animateBlackhole() {
+      if (!bhCanvas || !bhCtx) return;
+      
+      // If landing page is hidden, stop animation loop to conserve resources
+      if (document.getElementById('landing-page').classList.contains('hidden')) {
+        cancelAnimationFrame(bhAnimationFrameId);
+        return;
+      }
+
+      bhCtx.clearRect(0, 0, bhCanvas.width, bhCanvas.height);
+
+      const cx = bhCanvas.width / 2;
+      const cy = bhCanvas.height / 2;
+      const max_dist = Math.sqrt(cx * cx + cy * cy);
+
+      // 1. Draw Gravitational Vector Field Matrix throughout the complete window
+      const spacing = 40; 
+      for (let x = spacing / 2; x < bhCanvas.width; x += spacing) {
+        for (let y = spacing / 2; y < bhCanvas.height; y += spacing) {
+          const dx_bh = cx - x;
+          const dy_bh = cy - y;
+          const dist_bh = Math.sqrt(dx_bh * dx_bh + dy_bh * dy_bh);
+
+          // Skip drawing vector fields inside the central event horizon singularity core (75px radius)
+          if (dist_bh < 75) continue;
+
+          let angle = Math.atan2(dy_bh, dx_bh);
+          let intensity = 0.5;
+
+          if (bhMouse.x !== null && bhMouse.y !== null) {
+            const dx_m = bhMouse.x - x;
+            const dy_m = bhMouse.y - y;
+            const dist_m = Math.sqrt(dx_m * dx_m + dy_m * dy_m);
+
+            if (dist_m < 220) {
+              // Mouse acts as secondary gravity well distorting space grid
+              const force_m = (220 - dist_m) / 220; 
+              const force_bh = 0.85;
+
+              // Combined attraction vectors (Central gravity vs Cursor gravity pull)
+              const vx = (dx_bh / dist_bh) * force_bh + (dx_m / dist_m) * force_m * 2.5;
+              const vy = (dy_bh / dist_bh) * force_bh + (dy_m / dist_m) * force_m * 2.5;
+
+              angle = Math.atan2(vy, vx);
+              intensity = Math.min(3.0, Math.sqrt(vx * vx + vy * vy));
+            }
+          }
+
+          // Mathematical center-to-edges reveal mapping (gradually darker and hidden towards corners)
+          let revealFactor = Math.pow(Math.max(0, 1.0 - (dist_bh / (max_dist * 0.95))), 1.8);
+
+          // Force colors correspond to gravity intensity (redshift/blueshift scale)
+          let color = '#06b6d4'; 
+          if (dist_bh < 160) {
+            color = '#f43f5e'; 
+          } else if (dist_bh < 290) {
+            color = '#a855f7'; 
+          }
+
+          drawGravityVector(bhCtx, x, y, angle, 12, color, intensity, revealFactor);
+        }
+      }
+
+      // 2. Draw Accretion Disk orbital elements
+      bhAccretionParticles.forEach(p => {
+        p.angle += p.speed; 
+        const px = cx + Math.cos(p.angle) * p.radius;
+        const py = cy + Math.sin(p.angle) * p.radius;
+
+        // Visual gravitational shear distortion on orbit heights if cursor interferes
+        let visualX = px;
+        let visualY = py;
+
+        if (bhMouse.x !== null && bhMouse.y !== null) {
+          const dx_m = bhMouse.x - px;
+          const dy_m = bhMouse.y - py;
+          const dist_m = Math.sqrt(dx_m * dx_m + dy_m * dy_m);
+          if (dist_m < 120) {
+            const shear = (120 - dist_m) / 120 * 18;
+            visualX += (dx_m / dist_m) * shear;
+            visualY += (dy_m / dist_m) * shear;
+          }
+        }
+
+        bhCtx.beginPath();
+        bhCtx.arc(visualX, visualY, p.size, 0, Math.PI * 2);
+        bhCtx.fillStyle = p.color;
+        bhCtx.fill();
+      });
+
+      bhAnimationFrameId = requestAnimationFrame(animateBlackhole);
+    }
+
+    // Triggered upon hitting 'Explore'
+    function enterPortfolio() {
+      // Initiate Web Audio API activation block
+      initSynthEngine();
+
+      // Cancel the blackhole landing page animation to free up memory
+      if (bhAnimationFrameId) {
+        cancelAnimationFrame(bhAnimationFrameId);
+        window.removeEventListener('resize', resizeBhCanvas);
+      }
+
+      const landing = document.getElementById('landing-page');
+      const mainApp = document.getElementById('main-app');
+      
+      // Portal exit animation
+      landing.classList.add('scale-150', 'opacity-0');
+      setTimeout(() => {
+        landing.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+        setTimeout(() => {
+          mainApp.classList.add('opacity-100');
+          lucide.createIcons(); // Instantiates Lucide Icons
+          startHomeCanvas();    // Initiates canvas dynamic rendering
+        }, 50);
+      }, 1000);
+    }
+
+    // Dynamic Navigation Tab switching logic
+    function switchTab(tabId) {
+      activeTab = tabId;
+
+      // Update contents
+      document.querySelectorAll('.tab-content').forEach(section => {
+        section.classList.add('hidden');
+      });
+      const selectedTab = document.getElementById(`tab-${tabId}`);
+      if(selectedTab) {
+        selectedTab.classList.remove('hidden');
+      }
+
+      // Update Desktop Nav Button states
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        const btnTab = btn.getAttribute('data-tab');
+        if (btnTab === tabId) {
+          btn.className = "nav-tab-btn flex items-center gap-3 px-6 py-3 rounded-full text-base font-semibold transition-all jelly-btn bg-slate-850 text-cyberBlue border border-cyberBlue/20";
+        } else {
+          btn.className = "nav-tab-btn flex items-center gap-3 px-6 py-3 rounded-full text-base font-semibold text-slate-400 transition-all jelly-btn hover:text-white";
+        }
+      });
+
+      // Update Mobile Bottom Nav Button states
+      document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+        const btnTab = btn.getAttribute('data-tab');
+        if (btnTab === tabId) {
+          btn.className = "mobile-tab-btn p-3 rounded-full text-cyberBlue transition-all bg-slate-900 border border-cyberBlue/20";
+        } else {
+          btn.className = "mobile-tab-btn p-3 rounded-full text-slate-400 hover:text-white transition-all";
+        }
+      });
+
+      // Extra activations
+      if (tabId === 'home') {
+        startHomeCanvas();
+      } else {
+        stopHomeCanvas();
+      }
+
+      // Hide/Show music player bar strictly based on whether we are in the music tab
+      const playerBar = document.getElementById('bottom-music-bar');
+      if (tabId === 'music' && activeTrackId) {
+        playerBar.classList.remove('translate-y-full');
+      } else {
+        playerBar.classList.add('translate-y-full');
+      }
+
+      // Close specific subviews if transitioning away
+      if (tabId !== 'paintings') {
+        exitArtGallery();
+      }
+      if (tabId !== 'coding') {
+        closeProject();
+      }
+    }
+
+    // ================= DYNAMIC QUANTUM LAB CANVAS (HOME) =================
+    let canvas, ctx;
+    let particles = [];
+    let animationFrameId = null;
+    let mouse = { x: null, y: null, radius: 140 };
+
+    function startHomeCanvas() {
+      canvas = document.getElementById('interaction-canvas');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+
+      const container = document.getElementById('home-interactive-container');
+
+      // Sync sizes with parent container
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      // Mouse interactive binding directly on the parent wrapper container
+      container.addEventListener('mousemove', handleMouseMove);
+      container.addEventListener('mouseleave', handleMouseLeave);
+      container.addEventListener('click', spawnBurst);
+
+      // Initiate default particle cluster
+      initParticles();
+
+      // Start loop
+      animateParticles();
+    }
+
+    function stopHomeCanvas() {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      window.removeEventListener('resize', resizeCanvas);
+    }
+
+    function resizeCanvas() {
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    function handleMouseMove(e) {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    }
+
+    function handleMouseLeave() {
+      mouse.x = null;
+      mouse.y = null;
+    }
+
+    function spawnBurst(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      // Spawn synth click burst audio alert
+      synthTriggerClickTone();
+
+      for (let i = 0; i < 20; i++) {
+        const speedMultiplier = Math.random() * 5 + 2;
+        const angle = Math.random() * Math.PI * 2;
+        particles.push({
+          x: clickX,
+          y: clickY,
+          vx: Math.cos(angle) * speedMultiplier,
+          vy: Math.sin(angle) * speedMultiplier,
+          radius: Math.random() * 4 + 1,
+          color: Math.random() > 0.5 ? '#f43f5e' : '#06b6d4',
+          alpha: 1,
+          decay: Math.random() * 0.02 + 0.015
+        });
+      }
+    }
+
+    function initParticles() {
+      particles = [];
+      const particleCount = 80;
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: (Math.random() - 0.5) * 1.5,
+          radius: Math.random() * 3.5 + 1.5,
+          color: Math.random() > 0.5 ? '#06b6d4' : '#6366f1',
+          alpha: 0.8,
+          originalColor: Math.random() > 0.5 ? '#06b6d4' : '#6366f1'
+        });
+      }
+    }
+
+    function resetLabCanvas() {
+      initParticles();
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Loop & update nodes
+      for (let i = 0; i < particles.length; i++) {
+        let p = particles[i];
+
+        // Decaying explosive particles
+        if (p.decay) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= p.decay;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.fill();
+          ctx.globalAlpha = 1.0;
+
+          if (p.alpha <= 0) {
+            particles.splice(i, 1);
+            i--;
+          }
+          continue;
+        }
+
+        // Standard floating nodes
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wall collisions
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        // Attractor magnetic interaction
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < mouse.radius) {
+            const force = (mouse.radius - dist) / mouse.radius;
+            p.x += (dx / dist) * force * 3;
+            p.y += (dy / dist) * force * 3;
+            p.color = '#f43f5e'; 
+          } else {
+            p.color = p.originalColor;
+          }
+        } else {
+          p.color = p.originalColor;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+
+        // Connect nodes adjacent to each other
+        for (let j = i + 1; j < particles.length; j++) {
+          let p2 = particles[j];
+          if (p2.decay) continue;
+
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 85) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(59, 130, 246, ${1 - dist / 85})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animateParticles);
+    }
+
+
+    // ================= PORTAL TRANSITION PAINTINGS GALLERIES =================
+    function enterArtGallery() {
+      const introCont = document.getElementById('art-intro-container');
+      const galleryCont = document.getElementById('art-gallery-container');
+
+      // Play soft ambient tone
+      synthTriggerClickTone();
+
+      // High-end smooth animations
+      introCont.classList.add('transition-all', 'duration-500', 'opacity-0', 'scale-95');
+      setTimeout(() => {
+        introCont.classList.add('hidden');
+        galleryCont.classList.remove('hidden');
+        galleryCont.classList.add('animate-fade-in');
+      }, 500);
+    }
+
+    function exitArtGallery() {
+      const introCont = document.getElementById('art-intro-container');
+      const galleryCont = document.getElementById('art-gallery-container');
+
+      if (galleryCont.classList.contains('hidden')) return;
+
+      galleryCont.classList.add('transition-all', 'duration-500', 'opacity-0');
+      setTimeout(() => {
+        galleryCont.classList.add('hidden');
+        galleryCont.classList.remove('transition-all', 'opacity-0');
+        introCont.classList.remove('hidden', 'opacity-0', 'scale-95');
+        introCont.classList.add('animate-fade-in');
+      }, 500);
+    }
+
+    // Framed Art Details Array
+    const artLibrary = [
+      { 
+        name: "Aura Combustion", 
+        spec: "Digital Abstract Art 01 &bull; Shades of Red and Deep Cosmic Indigo", 
+        fillGradient: "from-pink-500 via-red-500 to-slate-950",
+        imageUrl: "Mosaic.jpg", 
+        externalUrl: "" 
+      },
+      { 
+        name: "Deep Cyber Ocean", 
+        spec: "Generative Geometric Frame &bull; Shades of Cyan Blue and Teal", 
+        fillGradient: "from-teal-300 via-cyan-800 to-slate-950",
+        imageUrl: "Mosaic.jpg", 
+        externalUrl: "" 
+      },
+      { 
+        name: "Celestial Conflux", 
+        spec: "Vector Conic Gradient &bull; Dynamic Ambers with Space Purples", 
+        fillGradient: "from-amber-500 via-purple-900 to-indigo-950",
+        imageUrl: "Mosaic.jpg", 
+        externalUrl: "" 
+      },
+      { 
+        name: "Starlight Neon Void", 
+        spec: "Linear Gradient Intersect &bull; Deep Starry Obscurities", 
+        fillGradient: "from-indigo-900 via-purple-700 to-slate-950",
+        imageUrl: "Mosaic.jpg", 
+        externalUrl: "" 
+      },
+      { 
+        name: "Emerald Solstice", 
+        spec: "Algorithmic Color Coordinates &bull; Neon Rose and Pale Jade", 
+        fillGradient: "from-yellow-100 via-pink-400 to-emerald-950",
+        imageUrl: "Mosaic.jpg", 
+        externalUrl: "" 
+      },
+      { 
+        name: "Digital Heat Vector", 
+        spec: "Raw Core Grid Interface &bull; Crimson Energy Gradients", 
+        fillGradient: "from-slate-900 via-red-700 to-indigo-950",
+        imageUrl: "Mosaic.jpg", 
+        externalUrl: "" 
+      }
+    ];
+
+    // Build gallery dynamically
+    function renderGallery() {
+      const container = document.querySelector('#art-gallery-container .grid');
+      if (!container) return;
+      container.innerHTML = ''; 
+
+      artLibrary.forEach((art, index) => {
+        const rotationClass = index % 2 === 0 ? 'group-hover:-rotate-1' : 'group-hover:rotate-1';
+        
+        let mediaHtml = '';
+        if (art.imageUrl && art.imageUrl.trim() !== '') {
+          mediaHtml = `
+            <img src="${art.imageUrl}" class="w-full h-full object-cover rounded" alt="${art.name}" onerror="this.style.display='none'; document.getElementById('gradient-fallback-${index}').classList.remove('hidden')">
+            <div id="gradient-fallback-${index}" class="hidden absolute inset-0 rounded bg-gradient-to-tr ${art.fillGradient} flex items-center justify-center overflow-hidden">
+              <div class="opacity-30 border-2 border-dashed border-white/20 w-3/4 h-3/4 rounded-full animate-spin-slow"></div>
+            </div>`;
+        } else {
+          mediaHtml = `
+            <div class="w-full h-full rounded bg-gradient-to-tr ${art.fillGradient} flex items-center justify-center overflow-hidden">
+              <div class="opacity-30 border-2 border-dashed border-white/20 w-3/4 h-3/4 rounded-full animate-spin-slow"></div>
+            </div>`;
+        }
+
+        // External Link badge
+        let linkBadgeHtml = '';
+        if (art.externalUrl && art.externalUrl.trim() !== "") {
+          linkBadgeHtml = `
+            <a href="${art.externalUrl}" target="_blank" onclick="event.stopPropagation();" class="absolute top-4 right-4 z-10 p-2.5 bg-slate-900/90 border border-slate-800 hover:border-cyberRed text-slate-300 rounded-full hover:text-white transition-all shadow-lg" title="Open Art Details">
+              <i data-lucide="external-link" class="w-4 h-4"></i>
+            </a>
+          `;
+        }
+
+        const card = document.createElement('div');
+        card.className = "flex flex-col items-center group relative";
+        card.innerHTML = `
+          <div class="w-16 h-4 bg-yellow-400/20 blur-xl rounded-full mb-1 transition-all duration-500 group-hover:bg-yellow-400/40"></div>
+          <div onclick="zoomArtwork(${index})" class="wooden-frame cursor-pointer transition-transform duration-500 group-hover:scale-105 ${rotationClass} relative bg-slate-950 p-4 w-full max-w-sm rounded">
+            ${linkBadgeHtml}
+            <div class="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-yellow-300/15 to-transparent pointer-events-none"></div>
+            <div class="aspect-video w-full rounded flex items-center justify-center overflow-hidden relative bg-slate-900">
+              ${mediaHtml}
+            </div>
+            <div class="text-center mt-4 pt-3 border-t border-slate-900 bg-amber-50/5 rounded p-2 font-serif text-[#ebd3b2]">
+              <p class="text-base sm:text-lg font-bold italic">${art.name}</p>
+              <p class="text-xs uppercase tracking-wider font-mono opacity-60 mt-1">Canvas 0${index + 1} &bull; 2026</p>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function zoomArtwork(index) {
+      const lightbox = document.getElementById('artwork-lightbox');
+      const title = document.getElementById('lightbox-title');
+      const spec = document.getElementById('lightbox-spec');
+      const fillZone = document.getElementById('lightbox-art-fill');
+
+      const data = artLibrary[index];
+      title.innerText = data.name;
+      spec.innerHTML = data.spec;
+
+      // Update structural preview frame
+      if (data.imageUrl && data.imageUrl.trim() !== '') {
+        fillZone.className = "aspect-video w-full rounded bg-slate-950 flex items-center justify-center overflow-hidden relative";
+        fillZone.innerHTML = `
+          <img src="${data.imageUrl}" class="w-full h-full object-contain rounded" alt="${data.name}" onerror="this.style.display='none'; document.getElementById('lightbox-fallback').classList.remove('hidden')">
+          <div id="lightbox-fallback" class="hidden absolute inset-0 rounded bg-gradient-to-tr ${data.fillGradient} flex items-center justify-center overflow-hidden">
+            <div class="opacity-30 border-4 border-dashed border-white/15 w-2/3 h-2/3 rounded-full animate-spin-slow"></div>
+          </div>
+        `;
+      } else {
+        fillZone.className = `aspect-video w-full rounded bg-gradient-to-tr ${data.fillGradient} flex items-center justify-center overflow-hidden`;
+        fillZone.innerHTML = `
+          <div class="absolute inset-0 bg-gradient-to-b from-yellow-300/10 to-transparent pointer-events-none"></div>
+          <div class="opacity-30 border-4 border-dashed border-white/15 w-2/3 h-2/3 rounded-full animate-spin-slow"></div>
+        `;
+      }
+
+      // Render custom external details page link inside lightbox
+      let detailDesc = "This computational abstract canvas utilizes layered spatial gradients dynamically calculated by mathematical parameters.";
+      if (data.externalUrl && data.externalUrl.trim() !== "") {
+        detailDesc += ` <br><a href="${data.externalUrl}" target="_blank" class="inline-flex items-center gap-2 mt-3.5 text-cyberBlue hover:text-cyberRed underline font-mono text-sm transition-colors">
+          <i data-lucide="external-link" class="w-4 h-4"></i> Open Full High-Res Canvas Page
+        </a>`;
+      }
+      lightbox.querySelector('p.text-slate-400').innerHTML = detailDesc;
+      lucide.createIcons();
+
+      // Trigger reveal smoothly
+      lightbox.classList.remove('hidden');
+      setTimeout(() => {
+        lightbox.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+      }, 50);
+    }
+
+    function zoomArtworkClose() {
+      const lightbox = document.getElementById('artwork-lightbox');
+      lightbox.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+      setTimeout(() => {
+        lightbox.classList.add('hidden');
+      }, 500);
+    }
+
+
+    // ================= REAL-TIME AUDIO SYNTHESIS ENGINE (MUSIC) =================
+    let audioCtx = null;
+    let masterGain = null;
+    let synthInterval = null;
+    let musicPlaybackSeconds = 0;
+    let currentMusicProgressTimer = null;
+    let activeTrackId = null;
+    let isSynthPlaying = false;
+
+    // Integrated client audio stream tag
+    let streamAudioPlayer = new Audio();
+    let streamAudioSourceNode = null;
+
+    // Track metadata
+    const tracksList = [
+      { 
+        id: 1, 
+        name: "Nebula Voyager", 
+        desc: "Synthesizer Ambient Loop", 
+        duration: 24, 
+        synthType: "ambient",
+        audioUrl: "BJ2.mp3", 
+        externalUrl: "" 
+      },
+      { 
+        id: 2, 
+        name: "Cyber Arpeggio Flight", 
+        desc: "Fast Retro Wave Synths", 
+        duration: 18, 
+        synthType: "arp",
+        audioUrl: "BJ2.mp3", 
+        externalUrl: "" 
+      },
+      { 
+        id: 3, 
+        name: "Quantum Solitude", 
+        desc: "Deep Space Drone Chord Simulation", 
+        duration: 30, 
+        synthType: "drone",
+        audioUrl: "BJ2.mp3", 
+        externalUrl: "" 
+      },
+      { 
+        id: 4, 
+        name: "Pulsar Beats", 
+        desc: "Electronic Lo-Fi Chill Synth", 
+        duration: 20, 
+        synthType: "lofi",
+        audioUrl: "BJ2.mp3", 
+        externalUrl: "" 
+      }
+    ];
+
+    // Streaming Audio synchronization listeners
+    streamAudioPlayer.addEventListener('timeupdate', () => {
+      if (!activeTrackId) return;
+      const track = tracksList.find(t => t.id === activeTrackId);
+      if (track && track.audioUrl && track.audioUrl.trim() !== "") {
+        musicPlaybackSeconds = Math.floor(streamAudioPlayer.currentTime);
+        const duration = streamAudioPlayer.duration || track.duration;
+        const progressPct = (streamAudioPlayer.currentTime / duration) * 100;
+        document.getElementById('music-progress').style.width = `${progressPct}%`;
+        
+        document.getElementById('player-time-elapsed').innerText = formatTime(musicPlaybackSeconds);
+        document.getElementById('player-time-duration').innerText = formatTime(Math.floor(duration));
+      }
+    });
+
+    streamAudioPlayer.addEventListener('ended', () => {
+      nextTrack();
+    });
+
+    streamAudioPlayer.addEventListener('loadedmetadata', () => {
+      const duration = Math.floor(streamAudioPlayer.duration);
+      document.getElementById('player-time-duration').innerText = formatTime(duration);
+    });
+
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m}:${s < 10 ? '0' + s : s}`;
+    }
+
+    // Build playlist programmatically
+    function renderMusicPlaylist() {
+      const container = document.getElementById('music-playlist-container');
+      if (!container) return;
+      container.innerHTML = ''; 
+
+      tracksList.forEach((track) => {
+        let borderHoverClass = 'hover:border-cyberBlue/40';
+        let textHoverClass = 'group-hover:text-cyberBlue';
+        let btnClass = 'text-cyberBlue group-hover:bg-cyberBlue';
+        let gradClass = 'from-pink-500 to-indigo-600';
+        let icon = 'music-3';
+
+        if (track.id === 2) {
+          borderHoverClass = 'hover:border-cyberRed/40';
+          textHoverClass = 'group-hover:text-cyberRed';
+          btnClass = 'text-cyberRed group-hover:bg-cyberRed';
+          gradClass = 'from-cyan-400 to-violet-600';
+          icon = 'music-4';
+        } else if (track.id === 3) {
+          borderHoverClass = 'hover:border-purple-400/40';
+          textHoverClass = 'group-hover:text-purple-400';
+          btnClass = 'text-purple-400 group-hover:bg-purple-400';
+          gradClass = 'from-yellow-400 to-pink-600';
+          icon = 'waveform';
+        } else if (track.id === 4) {
+          borderHoverClass = 'hover:border-emerald-400/40';
+          textHoverClass = 'group-hover:text-emerald-400';
+          btnClass = 'text-emerald-400 group-hover:bg-emerald-400';
+          gradClass = 'from-emerald-400 to-teal-700';
+          icon = 'disc';
+        }
+
+        // Open external music page if available
+        let externalBtnHtml = '';
+        if (track.externalUrl && track.externalUrl.trim() !== "") {
+          externalBtnHtml = `
+            <a href="${track.externalUrl}" target="_blank" onclick="event.stopPropagation();" class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-white transition-all shadow-lg" title="Open Music Link">
+              <i data-lucide="external-link" class="w-5 h-5"></i>
+            </a>
+          `;
+        }
+
+        const row = document.createElement('div');
+        row.id = `track-${track.id}`;
+        row.onclick = () => selectTrack(track.id);
+        row.className = `track-row flex items-center justify-between p-4 rounded-xl bg-slate-950/40 hover:bg-slate-900 border border-slate-800/60 ${borderHoverClass} cursor-pointer group transition-all duration-300`;
+        row.innerHTML = `
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-lg bg-gradient-to-tr ${gradClass} flex items-center justify-center font-bold text-xl text-white shadow-md relative overflow-hidden flex-shrink-0 animate-pulse">
+              <div class="absolute inset-0 bg-slate-950/20"></div>
+              <i data-lucide="${icon}" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h5 class="text-base sm:text-lg font-bold text-slate-100 ${textHoverClass} transition-colors">${track.name}</h5>
+              <p class="text-xs sm:text-sm text-slate-400 mt-0.5">${track.desc}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-xs sm:text-sm text-slate-400 font-mono">${track.duration < 60 ? `0:${track.duration < 10 ? '0' + track.duration : track.duration}` : Math.floor(track.duration / 60) + ':' + (track.duration % 60 < 10 ? '0' + (track.duration % 60) : track.duration % 60)}</span>
+            ${externalBtnHtml}
+            <button class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center ${btnClass} group-hover:text-black transition-all">
+              <i data-lucide="play" class="w-5 h-5 translate-x-[1px]" id="track-btn-${track.id}"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+      lucide.createIcons();
+    }
+
+    // Safe Initialization of Audio Context on interactive trigger
+    function initSynthEngine() {
+      if (audioCtx) return;
+      try {
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
+      } catch (err) {
+        console.warn("Web Audio API not supported in this host environment.", err);
+      }
+    }
+
+    // Quick structural feedback click tone generator
+    function synthTriggerClickTone() {
+      if (!audioCtx) initSynthEngine();
+      if (!audioCtx) return;
+      
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
+      osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.15);
+
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15 + 0.01);
+    }
+
+    // Custom Live Modular Synthesizer Loops
+    function startRealTimeSynthLoop(synthType) {
+      if (!audioCtx) initSynthEngine();
+      if (!audioCtx) return;
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      stopRealTimeSynthLoop();
+
+      let step = 0;
+      isSynthPlaying = true;
+
+      if (synthType === 'ambient') {
+        const scale = [261.63, 329.63, 392.00, 493.88, 523.25]; // Cmaj7 notes
+        synthInterval = setInterval(() => {
+          if (!isSynthPlaying) return;
+          const randomNote = scale[Math.floor(Math.random() * scale.length)];
+          playEtherealSynthNode(randomNote, 1.8);
+        }, 800);
+
+      } else if (synthType === 'arp') {
+        const scale = [146.83, 174.61, 220.00, 293.66, 349.23, 440.00]; // D minor scales
+        synthInterval = setInterval(() => {
+          if (!isSynthPlaying) return;
+          const noteIndex = step % scale.length;
+          const noteFreq = scale[noteIndex] * (step % 3 === 0 ? 2 : 1);
+          playArpSynthNode(noteFreq, 0.25);
+          step++;
+        }, 180);
+
+      } else if (synthType === 'drone') {
+        const lowNotes = [73.42, 110.00, 82.41, 123.47]; // G, A, E, B notes
+        synthInterval = setInterval(() => {
+          if (!isSynthPlaying) return;
+          const baseNote = lowNotes[Math.floor(Math.random() * lowNotes.length)];
+          playDroneSynthNode(baseNote, 2.5);
+          playDroneSynthNode(baseNote * 1.5, 2.5);
+        }, 2200);
+
+      } else if (synthType === 'lofi') {
+        const lofiScale = [196.00, 246.94, 293.66, 329.63, 392.00]; // G Major chords
+        synthInterval = setInterval(() => {
+          if (!isSynthPlaying) return;
+          if (step % 2 === 0) {
+            playEtherealSynthNode(lofiScale[0], 1.2);
+            playEtherealSynthNode(lofiScale[2], 1.2);
+          } else {
+            playEtherealSynthNode(lofiScale[1], 1.2);
+            playEtherealSynthNode(lofiScale[3], 1.2);
+          }
+          step++;
+        }, 1200);
+      }
+    }
+
+    function stopRealTimeSynthLoop() {
+      if (synthInterval) {
+        clearInterval(synthInterval);
+        synthInterval = null;
+      }
+      isSynthPlaying = false;
+    }
+
+    // Sub-Synth Engines
+    function playEtherealSynthNode(frequency, duration) {
+      const osc = audioCtx.createOscillator();
+      const filter = audioCtx.createBiquadFilter();
+      const gainNode = audioCtx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.3); // Slow attack
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+      osc.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(masterGain);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration + 0.1);
+    }
+
+    // Arp synth oscillator engine
+    function playArpSynthNode(frequency, duration) {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+      gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+      osc.connect(gainNode);
+      gainNode.connect(masterGain);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration + 0.05);
+    }
+
+    function playDroneSynthNode(frequency, duration) {
+      const osc = audioCtx.createOscillator();
+      const filter = audioCtx.createBiquadFilter();
+      const gainNode = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(250, audioCtx.currentTime);
+
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.6); // Deep attack
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+      osc.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(masterGain);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration + 0.2);
+    }
+
+    // Spotify style selection handler supporting custom embedded streams
+    function selectTrack(trackId) {
+      initSynthEngine();
+      const track = tracksList.find(t => t.id === trackId);
+      if (!track) return;
+
+      activeTrackId = trackId;
+      musicPlaybackSeconds = 0;
+
+      // Reset DOM state of list rows
+      document.querySelectorAll('.track-row').forEach(row => {
+        row.classList.remove('bg-slate-900', 'border-cyberBlue', 'border-cyberRed', 'border-purple-400', 'border-emerald-400');
+        row.classList.add('bg-slate-950/40');
+      });
+
+      // Highlight active row in custom colors
+      const activeRow = document.getElementById(`track-${trackId}`);
+      let borderGlowClass = 'border-cyberBlue';
+      if(trackId === 2) borderGlowClass = 'border-cyberRed';
+      if(trackId === 3) borderGlowClass = 'border-purple-400';
+      if(trackId === 4) borderGlowClass = 'border-emerald-400';
+
+      if (activeRow) {
+        activeRow.classList.remove('bg-slate-950/40');
+        activeRow.classList.add('bg-slate-900', borderGlowClass);
+      }
+
+      // Stop previous synthesis loops & HTML5 audio streams
+      stopRealTimeSynthLoop();
+      streamAudioPlayer.pause();
+      streamAudioPlayer.src = "";
+
+      // Playback routing branch
+      if (track.audioUrl && track.audioUrl.trim() !== "") {
+        // Option A: Play embedded media track URL
+        streamAudioPlayer.src = track.audioUrl;
+        
+        if (!streamAudioSourceNode && audioCtx) {
+          try {
+            streamAudioSourceNode = audioCtx.createMediaElementSource(streamAudioPlayer);
+            streamAudioSourceNode.connect(masterGain);
+          } catch(err) {
+            console.warn("Media stream connection routed dynamically.", err);
+          }
+        }
+        streamAudioPlayer.play().catch(e => console.warn("Playback initialization blocked:", e));
+        isSynthPlaying = false; 
+      } else {
+        // Option B: Fallback to procedural realtime Synthesizer loop
+        startRealTimeSynthLoop(track.synthType);
+      }
+
+      // Slide up bottom player deck strictly IF the active tab is 'music'
+      const playerBar = document.getElementById('bottom-music-bar');
+      if (activeTab === 'music') {
+        playerBar.classList.remove('translate-y-full');
+      } else {
+        playerBar.classList.add('translate-y-full');
+      }
+
+      // Update player panel metadata
+      document.getElementById('now-playing-title').innerText = track.name;
+      document.getElementById('now-playing-desc').innerText = track.desc;
+
+      // Set play pause buttons
+      document.querySelectorAll('[id^="track-btn-"]').forEach(btn => {
+        btn.setAttribute('data-lucide', 'play');
+      });
+      
+      const playBtn = document.getElementById(`track-btn-${trackId}`);
+      if (playBtn) playBtn.setAttribute('data-lucide', 'pause');
+      document.getElementById('global-play-btn').innerHTML = `<i data-lucide="pause" class="w-6 h-6 fill-black translate-x-[0.5px]"></i>`;
+      lucide.createIcons();
+
+      // Initiate timing tracker if not loading direct streams
+      if (!track.audioUrl || track.audioUrl.trim() === "") {
+        document.getElementById('player-time-duration').innerText = `0:${track.duration < 10 ? '0' + track.duration : track.duration}`;
+        startTimelineCalculation(track.duration);
+      } else {
+        if (currentMusicProgressTimer) {
+          clearInterval(currentMusicProgressTimer);
+          currentMusicProgressTimer = null;
+        }
+      }
+    }
+
+    function startTimelineCalculation(duration) {
+      if (currentMusicProgressTimer) {
+        clearInterval(currentMusicProgressTimer);
+      }
+
+      currentMusicProgressTimer = setInterval(() => {
+        if (!isSynthPlaying) return; 
+
+        musicPlaybackSeconds++;
+        const progressPct = (musicPlaybackSeconds / duration) * 100;
+        document.getElementById('music-progress').style.width = `${progressPct}%`;
+        
+        const formattedSecs = musicPlaybackSeconds < 10 ? `0${musicPlaybackSeconds}` : musicPlaybackSeconds;
+        document.getElementById('player-time-elapsed').innerText = `0:${formattedSecs}`;
+
+        // Auto restart track loop at completion
+        if (musicPlaybackSeconds >= duration) {
+          musicPlaybackSeconds = 0;
+          const track = tracksList.find(t => t.id === activeTrackId);
+          if (track) startRealTimeSynthLoop(track.synthType);
+        }
+      }, 1000);
+    }
+
+    function togglePlayback() {
+      if (!activeTrackId) return;
+      const track = tracksList.find(t => t.id === activeTrackId);
+
+      if (track.audioUrl && track.audioUrl.trim() !== "") {
+        if (!streamAudioPlayer.paused) {
+          streamAudioPlayer.pause();
+          document.getElementById('global-play-btn').innerHTML = `<i data-lucide="play" class="w-6 h-6 fill-black translate-x-[1px]"></i>`;
+          document.getElementById(`track-btn-${activeTrackId}`).setAttribute('data-lucide', 'play');
+        } else {
+          streamAudioPlayer.play().catch(e => console.warn(e));
+          document.getElementById('global-play-btn').innerHTML = `<i data-lucide="pause" class="w-6 h-6 fill-black translate-x-[0.5px]"></i>`;
+          document.getElementById(`track-btn-${activeTrackId}`).setAttribute('data-lucide', 'pause');
+        }
+      } else {
+        if (isSynthPlaying) {
+          stopRealTimeSynthLoop();
+          document.getElementById('global-play-btn').innerHTML = `<i data-lucide="play" class="w-6 h-6 fill-black translate-x-[1px]"></i>`;
+          document.getElementById(`track-btn-${activeTrackId}`).setAttribute('data-lucide', 'play');
+        } else {
+          startRealTimeSynthLoop(track.synthType);
+          document.getElementById('global-play-btn').innerHTML = `<i data-lucide="pause" class="w-6 h-6 fill-black translate-x-[0.5px]"></i>`;
+          document.getElementById(`track-btn-${activeTrackId}`).setAttribute('data-lucide', 'pause');
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function prevTrack() {
+      if (!activeTrackId) return;
+      let targetId = activeTrackId - 1;
+      if (targetId < 1) targetId = tracksList.length;
+      selectTrack(targetId);
+    }
+
+    function nextTrack() {
+      if (!activeTrackId) return;
+      let targetId = activeTrackId + 1;
+      if (targetId > tracksList.length) targetId = 1;
+      selectTrack(targetId);
+    }
+
+    function adjustVolume(val) {
+      if (masterGain) {
+        masterGain.gain.setValueAtTime(parseFloat(val), audioCtx.currentTime);
+      }
+    }
+
+    function toggleMute() {
+      const iconBtn = document.getElementById('mute-btn-icon');
+      if (masterGain.gain.value > 0) {
+        masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        iconBtn.innerHTML = `<i data-lucide="volume-x" class="w-6 h-6"></i>`;
+      } else {
+        masterGain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+        iconBtn.innerHTML = `<i data-lucide="volume-2" class="w-6 h-6"></i>`;
+      }
+      lucide.createIcons();
+    }
+
+    function seekMusic(event) {
+      if (!activeTrackId) return;
+      const timeline = document.getElementById('music-timeline');
+      const rect = timeline.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const pct = clickX / rect.width;
+      
+      const track = tracksList.find(t => t.id === activeTrackId);
+      if (track) {
+        if (track.audioUrl && track.audioUrl.trim() !== "") {
+          streamAudioPlayer.currentTime = pct * (streamAudioPlayer.duration || track.duration);
+        } else {
+          musicPlaybackSeconds = Math.floor(pct * track.duration);
+          document.getElementById('music-progress').style.width = `${pct * 100}%`;
+          const elapsedSecs = musicPlaybackSeconds < 10 ? `0${musicPlaybackSeconds}` : musicPlaybackSeconds;
+          document.getElementById('player-time-elapsed').innerText = `0:${elapsedSecs}`;
+        }
+      }
+    }
+
+    function closeBottomMusicBar() {
+      stopRealTimeSynthLoop();
+      streamAudioPlayer.pause();
+      if (currentMusicProgressTimer) clearInterval(currentMusicProgressTimer);
+      
+      const playerBar = document.getElementById('bottom-music-bar');
+      playerBar.classList.add('translate-y-full');
+      
+      document.querySelectorAll('[id^="track-btn-"]').forEach(btn => {
+        btn.setAttribute('data-lucide', 'play');
+      });
+      lucide.createIcons();
+      activeTrackId = null;
+    }
+
+
+    // ================= PROJECTS ENGINE & INTERACTIVE VIDEO (CODING) =================
+    let selectedProjectId = null;
+
+    const projectsData = [
+      {
+        id: 1,
+        title: "Void Gravity Core",
+        badge: "PROJECT 01 &bull; CODEBASE DEMONSTRATION",
+        desc: "Void Gravity Core maps hundreds of orbital star elements suspended around floating blackhole gravities in real-time. Dragging around the matrix adjusts physics gravity constants dynamically, rendering beautiful high-definition cosmic particles on screen.",
+        software: ["HTML5 Canvas API", "Vanilla ES6 JavaScript Core", "Trigonometric Physics", "Tailwind CSS Design Framework"],
+        videoUrl: "https://drive.google.com/file/d/1Ydpxs3lqnnn48bNbiNJGLUZwnygT9xxh/preview" 
+      },
+      {
+        id: 2,
+        title: "Cyber Audio Synths",
+        badge: "PROJECT 02 &bull; SYNTH ENGINE PLAYLIST",
+        desc: "An algorithmic Web Audio API synthesizer suite implementing responsive soundwave oscillators and high/low pass resonance filters. It builds a beautiful, low-latency Spotify-style interactive playback console powered entirely by programmatic synthesis.",
+        software: ["Web Audio API System", "Custom Gain Nodes", "Lucide Icon Integration", "Responsive Flex UI Elements"],
+        videoUrl: "https://youtu.be/RIPxwxqZhVI" 
+      },
+      {
+        id: 3,
+        title: "Quantum Resonance Matrix",
+        badge: "PROJECT 03 &bull; GRAPH SPECTRUM SIMULATOR",
+        desc: "An advanced algorithmic engine parsing multi-layered complex coordinates to plot dynamic, high-fidelity sound frequencies across reactive polar graphs.",
+        software: ["Complex Algorithms", "Matrix Math Core", "Responsive SVGs", "Web Audio Streams"],
+        videoUrl: "https://youtu.be/RIPxwxqZhVI" 
+      }
+    ];
+
+    function openProject(id) {
+      const data = projectsData.find(p => p.id === id);
+      if (!data) return;
+
+      selectedProjectId = id;
+      synthTriggerClickTone();
+
+      const listCont = document.getElementById('coding-main-container');
+      const detailCont = document.getElementById('project-detail-container');
+
+      listCont.classList.add('transition-all', 'duration-500', 'opacity-0', 'scale-95');
+      setTimeout(() => {
+        listCont.classList.add('hidden');
+        detailCont.classList.remove('hidden');
+        detailCont.classList.add('animate-fade-in');
+
+        document.getElementById('project-title').innerText = data.title;
+        document.getElementById('project-badge').innerHTML = data.badge;
+        document.getElementById('project-desc-text').innerText = data.desc;
+
+        const videoIframe = document.getElementById('project-video-iframe');
+        if (videoIframe) {
+          videoIframe.src = data.videoUrl;
+        }
+
+        const swContainer = document.getElementById('project-software-list');
+        swContainer.innerHTML = '';
+        data.software.forEach(sw => {
+          const badge = document.createElement('span');
+          badge.className = "px-3.5 py-2 bg-slate-900 border border-slate-800 text-xs sm:text-sm font-mono text-cyan-300 rounded-lg shadow-sm";
+          badge.innerText = sw;
+          swContainer.appendChild(badge);
+        });
+
+      }, 500);
+    }
+
+    function closeProject() {
+      const listCont = document.getElementById('coding-main-container');
+      const detailCont = document.getElementById('project-detail-container');
+
+      if (detailCont.classList.contains('hidden')) return;
+
+      const videoIframe = document.getElementById('project-video-iframe');
+      if (videoIframe) {
+        videoIframe.src = '';
+      }
+
+      detailCont.classList.add('transition-all', 'duration-500', 'opacity-0');
+      setTimeout(() => {
+        detailCont.classList.add('hidden');
+        detailCont.classList.remove('transition-all', 'opacity-0');
+        listCont.classList.remove('hidden', 'opacity-0', 'scale-95');
+        listCont.classList.add('animate-fade-in');
+      }, 500);
+    }
+
+  </script>
+</body>
+</html>
